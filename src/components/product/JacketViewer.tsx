@@ -11,7 +11,7 @@ export const JACKET_MODEL_URL: string | null = null;
 
 type View = "both" | "front" | "back";
 
-export function JacketViewer({ image }: { image?: string }) {
+export function JacketViewer({ image }: { image?: string | undefined }) {
   const wrap = useRef<HTMLDivElement>(null);
   const [modelUrl, setModelUrl] = useState<string | null>(JACKET_MODEL_URL);
   const [view, setView] = useState<View>("both");
@@ -61,7 +61,7 @@ export function JacketViewer({ image }: { image?: string }) {
     (e.target as Element).setPointerCapture?.(e.pointerId);
     pinch.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch.current.size === 2) {
-      const [a, b] = [...pinch.current.values()];
+      const [a, b] = [...pinch.current.values()] as [{ x: number; y: number }, { x: number; y: number }];
       pinchStart.current = { d: Math.hypot(a.x - b.x, a.y - b.y), z: zoom };
       drag.current = null;
     } else {
@@ -74,7 +74,7 @@ export function JacketViewer({ image }: { image?: string }) {
     if (modelUrl || !pinch.current.has(e.pointerId)) return;
     pinch.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch.current.size === 2 && pinchStart.current) {
-      const [a, b] = [...pinch.current.values()];
+      const [a, b] = [...pinch.current.values()] as [{ x: number; y: number }, { x: number; y: number }];
       const d = Math.hypot(a.x - b.x, a.y - b.y);
       setZoom(Math.min(3, Math.max(1, (pinchStart.current.z * d) / pinchStart.current.d)));
     } else if (drag.current) {
