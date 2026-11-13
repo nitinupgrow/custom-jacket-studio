@@ -87,7 +87,7 @@ export default function ModelCanvas({ url, view, autoRotate, zoomSignal }: { url
           <Lightformer intensity={2} position={[0, 5, 0]} scale={[10, 10, 1]} />
           <Lightformer intensity={1} position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
         </Environment>
-        <Suspense fallback={null}>{url ? <GlbModel url={url} /> : <ProceduralJacket />}</Suspense>
+        <Suspense fallback={null}><GlbModel url={url ?? defaultGlb.url} /></Suspense>
         <OrbitControls ref={controls} enableDamping enablePan={false} autoRotate={autoRotate} autoRotateSpeed={2.5} minDistance={1.8} maxDistance={9} />
         <ViewSync view={view} controls={controls} />
       </Canvas>
