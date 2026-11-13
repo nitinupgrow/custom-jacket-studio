@@ -63,7 +63,7 @@ function textTexture(text: string, w: number, h: number, arch: boolean) {
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   const bump = new THREE.CanvasTexture(bc); bump.anisotropy = 8;
-  t.userData.bump = bump;
+  t.userData["bump"] = bump;
   return t;
 }
 
@@ -101,7 +101,7 @@ function GlbModel({ url }: { url: string }) {
       const orient = new THREE.Euler(0, side === 1 ? 0 : Math.PI, 0);
       const mesh = hit.object as THREE.Mesh;
       const geo = new DecalGeometry(mesh, hit.point, orient, size);
-      const mat = new THREE.MeshStandardMaterial({ map: tex, bumpMap: tex.userData.bump, bumpScale: 6, transparent: true, roughness: 1, metalness: 0, depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+      const mat = new THREE.MeshStandardMaterial({ map: tex, bumpMap: tex.userData["bump"], bumpScale: 6, transparent: true, roughness: 1, metalness: 0, depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
       const d = new THREE.Mesh(geo, mat);
       decals.push(d); g.add(d);
     };
