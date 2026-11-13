@@ -20,9 +20,10 @@ import patch from "@/assets/patch.png.asset.json";
 import modelThumb from "@/assets/model-thumb.png.asset.json";
 import lifestyle from "@/assets/lifestyle-model.png.asset.json";
 import fabricWide from "@/assets/fabric-wide.png.asset.json";
-import relBlack from "@/assets/rel-black.png.asset.json";
-import relNavy from "@/assets/rel-navy.png.asset.json";
-import relMaroon from "@/assets/rel-maroon.png.asset.json";
+import relBlackImg from "@/assets/related-black.jpg";
+import relNavyImg from "@/assets/related-navy.jpg";
+import relMaroonImg from "@/assets/related-maroon.jpg";
+const relBlack = { url: relBlackImg }, relNavy = { url: relNavyImg }, relMaroon = { url: relMaroonImg };
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -360,7 +361,27 @@ function ProductPage() {
         </section>
       </main>
 
-      <footer className="border-t bg-secondary py-8 text-center text-xs text-muted-foreground">© 2026 A.N.J. Designs. All rights reserved.</footer>
+      <footer className="mt-20 bg-primary text-primary-foreground">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
+          <div>
+            <p className="text-xl font-black tracking-tight">A.N.J. DESIGNS™</p>
+            <p className="mt-3 text-sm opacity-70">Custom varsity jackets, made to order with your name, initials and logo.</p>
+          </div>
+          {[
+            ["Shop", ["Varsity Jackets", "Custom Design", "Bulk Orders", "Gift Cards"]],
+            ["Help", ["Size Guide", "Shipping", "Returns & Exchange", "Track Order"]],
+            ["Company", ["About Us", "Contact", "Privacy Policy", "Terms"]],
+          ].map(([title, links]) => (
+            <div key={title as string}>
+              <p className="text-sm font-bold uppercase tracking-wider">{title as string}</p>
+              <ul className="mt-4 space-y-2 text-sm opacity-70">
+                {(links as string[]).map((l) => <li key={l}><a href="#" className="transition-opacity hover:opacity-100 hover:underline">{l}</a></li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="border-t border-primary-foreground/15 py-6 pb-24 text-center text-xs opacity-60 lg:pb-6">© 2026 A.N.J. Designs. All rights reserved.</div>
+      </footer>
 
       {/* mobile sticky buy bar */}
       <div className="fixed inset-x-0 bottom-0 z-40 flex gap-2 border-t bg-background p-3 lg:hidden">
