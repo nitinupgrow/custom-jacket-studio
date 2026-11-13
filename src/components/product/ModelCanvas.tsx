@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, useGLTF, useTexture, Center, Environment, Lightformer, ContactShadows, Bounds } from "@react-three/drei";
+import { OrbitControls, useGLTF, useTexture, Center, Environment, Lightformer, Bounds } from "@react-three/drei";
 import * as THREE from "three";
 import frontCut from "@/assets/jacket-front-cutout.png.asset.json";
 import backCut from "@/assets/jacket-back-cutout.png.asset.json";
@@ -87,7 +87,6 @@ export default function ModelCanvas({ url, view, autoRotate, zoomSignal }: { url
           <Lightformer intensity={1} position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
         </Environment>
         <Suspense fallback={null}>{url ? <GlbModel url={url} /> : <ProceduralJacket />}</Suspense>
-        <ContactShadows position={[0, -1.25, 0]} opacity={0.45} blur={2.5} scale={6} />
         <OrbitControls ref={controls} enableDamping enablePan={false} autoRotate={autoRotate} autoRotateSpeed={2.5} minDistance={1.8} maxDistance={9} />
         <ViewSync view={view} controls={controls} />
       </Canvas>
