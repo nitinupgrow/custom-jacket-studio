@@ -5,10 +5,20 @@ import defaultGlb from "@/assets/varsity-jacket-v2.glb.asset.json";
 
 function GlbModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);
+  const ref = useRef<THREE.Group>(null);
+  useEffect(() => {
+    const g = ref.current;
+    if (!g) return;
+    const clone = scene.clone(true);
+    g.add(clone);
+    return () => {
+      g.remove(clone);
+    };
+  }, [scene]);
   return (
     <Bounds fit clip observe margin={1.2}>
       <Center>
-        <primitive object={scene} />
+        <group ref={ref} />
       </Center>
     </Bounds>
   );
