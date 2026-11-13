@@ -41,11 +41,6 @@ function ProceduralJacket() {
       <mesh geometry={parts[1]!.geo} rotation-y={Math.PI}>
         <meshStandardMaterial map={parts[1]!.tex} alphaTest={0.5} roughness={0.85} side={THREE.FrontSide} />
       </mesh>
-      {/* dark core so side and top views read as a solid garment */}
-      <mesh scale={[0.78, 0.92, DEPTH * 1.15]} position-y={-0.02}>
-        <cylinderGeometry args={[1, 1, H * 0.95, 32]} />
-        <meshStandardMaterial color="#111214" roughness={0.95} />
-      </mesh>
     </group>
   );
 }
