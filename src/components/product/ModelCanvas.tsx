@@ -4,6 +4,7 @@ import { OrbitControls, useGLTF, useTexture, Center, Environment, Lightformer, B
 import * as THREE from "three";
 import frontCut from "@/assets/jacket-front-cutout.png.asset.json";
 import backCut from "@/assets/jacket-back-cutout.png.asset.json";
+import defaultGlb from "@/assets/varsity-jacket-v2.glb.asset.json";
 
 const H = 2.2; // jacket height in scene units
 const DEPTH = 0.32; // chest bulge depth
