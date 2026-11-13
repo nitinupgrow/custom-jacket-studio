@@ -11,7 +11,7 @@ const DEPTH = 0.32; // chest bulge depth
 /** Plane bent into a rounded shell so the jacket has real volume from any angle. */
 function shell(w: number, h: number) {
   const g = new THREE.PlaneGeometry(w, h, 48, 48);
-  const p = g.attributes.position as THREE.BufferAttribute;
+  const p = g.attributes['position'] as THREE.BufferAttribute;
   for (let i = 0; i < p.count; i++) {
     const nx = (2 * p.getX(i)) / w;
     const ny = p.getY(i) / h + 0.5; // 0 bottom .. 1 top
