@@ -5,6 +5,16 @@ import * as THREE from "three";
 import { DecalGeometry } from "three/examples/jsm/geometries/DecalGeometry.js";
 
 /** Varsity-style text patch that covers the baked lettering on the model. */
+function layout(text: string, w: number, h: number, arch: boolean, draw: (ch: string, x: number, y: number, r: number) => void) {
+  if (!arch) return draw(text, w / 2, h / 2, 0);
+  const R = w * 1.1, cy = h * 0.62 + R, span = 0.62;
+  const chars = text.split("");
+  chars.forEach((ch, i) => {
+    const a = -span / 2 + (span * (i + 0.5)) / chars.length;
+    draw(ch, w / 2 + Math.sin(a) * R, cy - Math.cos(a) * R, a);
+  });
+}
+
 function textTexture(text: string, w: number, h: number, arch: boolean) {
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
@@ -25,27 +35,41 @@ function textTexture(text: string, w: number, h: number, arch: boolean) {
     x.lineWidth = fs * 0.07; x.lineJoin = "round"; x.strokeStyle = "#ecece8"; x.strokeText(ch, 0, 0);
     x.restore();
   };
-  if (!arch) draw(text, w / 2, h / 2, 0);
-  else {
-    const R = w * 1.1, cy = h * 0.62 + R, span = 0.62;
-    const chars = text.split("");
-    chars.forEach((ch, i) => {
-      const a = -span / 2 + (span * (i + 0.5)) / chars.length;
-      draw(ch, w / 2 + Math.sin(a) * R, cy - Math.cos(a) * R, a);
-    });
-  }
+  layout(text, w, h, arch, draw);
   // fuzzy fleece grain on the letters
   const img = x.getImageData(0, 0, w, h); const d = img.data;
   for (let i = 0; i < d.length; i += 4) if (d[i]! > 120) { const n = (Math.random() - 0.5) * 40; d[i] = d[i]! + n; d[i + 1] = d[i + 1]! + n; d[i + 2] = d[i + 2]! + n; }
   x.putImageData(img, 0, 0);
+  // Height map for the raised, puffy cotton-chenille look.
+  const bc = document.createElement("canvas"); bc.width = w; bc.height = h;
+  const bx = bc.getContext("2d")!;
+  bx.fillStyle = "#000"; bx.fillRect(0, 0, w, h);
+  bx.textAlign = "center"; bx.textBaseline = "middle"; bx.font = x.font; bx.lineJoin = "round";
+  const puff = (ch: string, cx: number, cy: number, rot: number) => {
+    bx.save(); bx.translate(cx, cy); bx.rotate(rot);
+    // stacked blurred passes = domed edges
+    [0.09, 0.05, 0.02].forEach((b, k) => {
+      bx.filter = `blur(${fs * b}px)`; bx.fillStyle = `rgb(${110 + k * 70},${110 + k * 70},${110 + k * 70})`;
+      bx.strokeStyle = bx.fillStyle; bx.lineWidth = fs * 0.07;
+      bx.fillText(ch, 0, 0); bx.strokeText(ch, 0, 0);
+    });
+    bx.restore();
+  };
+  layout(text, w, h, arch, puff);
+  bx.filter = "none";
+  const bimg = bx.getImageData(0, 0, w, h); const bd = bimg.data;
+  for (let i = 0; i < bd.length; i += 4) if (bd[i]! > 40) { const n = (Math.random() - 0.5) * 70; bd[i] = bd[i]! + n; bd[i + 1] = bd[i]!; bd[i + 2] = bd[i]!; }
+  bx.putImageData(bimg, 0, 0);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  const bump = new THREE.CanvasTexture(bc); bump.anisotropy = 8;
+  t.userData["bump"] = bump;
   return t;
 }
 
 const FRONT_TEXT = "KJ";
 const BACK_TEXT = "KABIR";
-import defaultGlb from "@/assets/varsity-jacket-v2.glb.asset.json";
+import defaultGlb from "@/assets/varsity-jacket-v2-opt.glb.asset.json";
 
 function GlbModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);
@@ -77,7 +101,7 @@ function GlbModel({ url }: { url: string }) {
       const orient = new THREE.Euler(0, side === 1 ? 0 : Math.PI, 0);
       const mesh = hit.object as THREE.Mesh;
       const geo = new DecalGeometry(mesh, hit.point, orient, size);
-      const mat = new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 1, metalness: 0, depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+      const mat = new THREE.MeshStandardMaterial({ map: tex, bumpMap: tex.userData["bump"], bumpScale: 6, transparent: true, roughness: 1, metalness: 0, depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
       const d = new THREE.Mesh(geo, mat);
       decals.push(d); g.add(d);
     };
@@ -88,7 +112,7 @@ function GlbModel({ url }: { url: string }) {
     });
     return () => {
       cancelled = true;
-      decals.forEach((d) => { g.remove(d); d.geometry.dispose(); (d.material as THREE.MeshStandardMaterial).map?.dispose(); (d.material as THREE.Material).dispose(); });
+      decals.forEach((d) => { g.remove(d); d.geometry.dispose(); (d.material as THREE.MeshStandardMaterial).map?.dispose(); (d.material as THREE.MeshStandardMaterial).bumpMap?.dispose(); (d.material as THREE.Material).dispose(); });
       g.remove(clone);
     };
   }, [scene]);
