@@ -9,27 +9,35 @@ function textTexture(text: string, w: number, h: number, arch: boolean) {
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
   const x = c.getContext("2d")!;
-  const g = x.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.3, w / 2, h / 2, Math.max(w, h) * 0.55);
-  g.addColorStop(0, "rgba(8,8,9,1)"); g.addColorStop(0.75, "rgba(8,8,9,1)"); g.addColorStop(1, "rgba(8,8,9,0)");
+  // Body-colour patch with soft edges to hide the baked lettering underneath.
+  const g = x.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.5);
+  g.addColorStop(0, "rgba(10,10,11,1)"); g.addColorStop(0.8, "rgba(10,10,11,1)"); g.addColorStop(1, "rgba(10,10,11,0)");
   x.fillStyle = g; x.fillRect(0, 0, w, h);
   x.textAlign = "center"; x.textBaseline = "middle";
-  const fs = arch ? h * 0.42 : h * 0.62;
-  x.font = `900 ${fs}px "Archivo Black", Impact, "Arial Black", sans-serif`;
-  x.lineJoin = "round";
+  const fs = arch ? h * 0.46 : h * 0.5;
+  x.font = `400 ${fs}px Graduate, "Rockwell", serif`;
   const draw = (ch: string, cx: number, cy: number, rot: number) => {
     x.save(); x.translate(cx, cy); x.rotate(rot);
-    x.lineWidth = fs * 0.12; x.strokeStyle = "#9a9a9a"; x.strokeText(ch, 0, 0);
-    x.fillStyle = "#f2f2f2"; x.fillText(ch, 0, 0); x.restore();
+    // raised chenille: soft shadow, then white fill
+    x.shadowColor = "rgba(0,0,0,0.85)"; x.shadowBlur = fs * 0.08; x.shadowOffsetY = fs * 0.04;
+    x.fillStyle = "#f4f4f2"; x.fillText(ch, 0, 0);
+    x.shadowColor = "transparent";
+    x.lineWidth = fs * 0.025; x.strokeStyle = "rgba(200,200,200,0.6)"; x.strokeText(ch, 0, 0);
+    x.restore();
   };
   if (!arch) draw(text, w / 2, h / 2, 0);
   else {
-    const R = w * 0.9, cy = h * 0.55 + R, span = 0.62;
+    const R = w * 1.1, cy = h * 0.62 + R, span = 0.62;
     const chars = text.split("");
     chars.forEach((ch, i) => {
       const a = -span / 2 + (span * (i + 0.5)) / chars.length;
       draw(ch, w / 2 + Math.sin(a) * R, cy - Math.cos(a) * R, a);
     });
   }
+  // fuzzy fleece grain on the letters
+  const img = x.getImageData(0, 0, w, h); const d = img.data;
+  for (let i = 0; i < d.length; i += 4) if (d[i] > 120) { const n = (Math.random() - 0.5) * 40; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+  x.putImageData(img, 0, 0);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   return t;
@@ -61,6 +69,7 @@ function GlbModel({ url }: { url: string }) {
     clone.traverse((o) => { if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh); });
     const ray = new THREE.Raycaster();
     const decals: THREE.Mesh[] = [];
+    let cancelled = false;
     const place = (px: number, py: number, side: 1 | -1, size: THREE.Vector3, tex: THREE.Texture) => {
       ray.set(new THREE.Vector3(px, py, side * 5), new THREE.Vector3(0, 0, -side));
       const hit = ray.intersectObjects(meshes, false)[0];
@@ -72,9 +81,13 @@ function GlbModel({ url }: { url: string }) {
       const d = new THREE.Mesh(geo, mat);
       decals.push(d); g.add(d);
     };
-    place(0.39, 0.38, 1, new THREE.Vector3(0.36, 0.36, 0.3), textTexture(FRONT_TEXT, 512, 512, false));
-    place(0, 0.45, -1, new THREE.Vector3(1.0, 0.5, 0.3), textTexture(BACK_TEXT, 1024, 512, true));
+    document.fonts.load('400 100px Graduate').catch(() => {}).then(() => {
+      if (cancelled) return;
+      place(0.37, 0.38, 1, new THREE.Vector3(0.46, 0.4, 0.3), textTexture(FRONT_TEXT, 512, 448, false));
+      place(0, 0.45, -1, new THREE.Vector3(1.05, 0.55, 0.3), textTexture(BACK_TEXT, 1024, 536, true));
+    });
     return () => {
+      cancelled = true;
       decals.forEach((d) => { g.remove(d); d.geometry.dispose(); (d.material as THREE.MeshStandardMaterial).map?.dispose(); (d.material as THREE.Material).dispose(); });
       g.remove(clone);
     };
