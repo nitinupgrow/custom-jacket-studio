@@ -7,17 +7,19 @@ import defaultGlb from "@/assets/varsity-jacket-v2.glb.asset.json";
 function GlbModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);
   const ref = useRef<THREE.Group>(null);
+  const boundsRef = useRef<any>(null);
   useEffect(() => {
     const g = ref.current;
     if (!g) return;
     const clone = scene.clone(true);
     g.add(clone);
+    boundsRef.current?.refresh().clip().fit();
     return () => {
       g.remove(clone);
     };
   }, [scene]);
   return (
-    <Bounds fit clip observe margin={1.2}>
+    <Bounds ref={boundsRef} fit clip observe margin={1.2}>
       <Center>
         <group ref={ref} />
       </Center>
