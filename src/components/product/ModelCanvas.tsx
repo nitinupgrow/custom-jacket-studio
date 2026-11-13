@@ -7,24 +7,23 @@ import defaultGlb from "@/assets/varsity-jacket-v2.glb.asset.json";
 function GlbModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);
   const ref = useRef<THREE.Group>(null);
-  const boundsRef = useRef<any>(null);
   useEffect(() => {
     const g = ref.current;
     if (!g) return;
     const clone = scene.clone(true);
+    // Normalize: center at origin and scale so the largest side is ~2.2 units.
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const s = 2.2 / Math.max(size.x, size.y, size.z, 0.0001);
+    clone.scale.setScalar(s);
+    clone.position.sub(center.multiplyScalar(s));
     g.add(clone);
-    boundsRef.current?.refresh().clip().fit();
     return () => {
       g.remove(clone);
     };
   }, [scene]);
-  return (
-    <Bounds ref={boundsRef} fit clip observe margin={1.2}>
-      <Center>
-        <group ref={ref} />
-      </Center>
-    </Bounds>
-  );
+  return <group ref={ref} />;
 }
 
 function ViewSync({ view, controls }: { view: "front" | "back"; controls: React.RefObject<any> }) {
