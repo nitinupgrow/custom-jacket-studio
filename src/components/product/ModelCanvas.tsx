@@ -1,6 +1,7 @@
 import { Suspense, useEffect, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF, Center, Environment, Lightformer, Bounds } from "@react-three/drei";
+import * as THREE from "three";
 import defaultGlb from "@/assets/varsity-jacket-v2.glb.asset.json";
 
 function GlbModel({ url }: { url: string }) {
