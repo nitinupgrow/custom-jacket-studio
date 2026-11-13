@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   Search, User, ShoppingCart, Star, Ruler, UploadCloud, Minus, Plus, Zap, Truck, Repeat, ShieldCheck,
-  ChevronLeft, ChevronRight, Check, Play, Layers, PenTool, Shield, Feather, ArrowRight, Box, X, Trash2, Heart, Share2, Lock, Expand,
+  ChevronLeft, ChevronRight, Check, Layers, PenTool, Shield, Feather, ArrowRight, Box, Trash2, Heart, Share2, Lock, Expand,
 } from "lucide-react";
 import { JacketViewer } from "@/components/product/JacketViewer";
 import front from "@/assets/jacket-front.png.asset.json";
