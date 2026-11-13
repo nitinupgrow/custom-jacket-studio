@@ -74,7 +74,7 @@ function textTexture(text: string, w: number, h: number, arch: boolean) {
 
 const FRONT_TEXT = "KJ";
 const BACK_TEXT = "KABIR";
-import defaultGlb from "@/assets/varsity-jacket-v2-opt.glb.asset.json";
+const defaultGlb = { url: "/media/varsity-jacket-v2-opt.glb" };
 
 function GlbModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);

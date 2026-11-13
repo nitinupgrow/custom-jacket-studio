@@ -10,16 +10,16 @@ import {
   ChevronLeft, ChevronRight, Check, Layers, PenTool, Shield, Feather, ArrowRight, Box, Trash2, Heart, Share2, Lock, Expand,
 } from "lucide-react";
 import { JacketViewer } from "@/components/product/JacketViewer";
-import front from "@/assets/jacket-front.png.asset.json";
-import back from "@/assets/jacket-back.png.asset.json";
-import cuff from "@/assets/cuff.png.asset.json";
-import sleeve from "@/assets/sleeve.png.asset.json";
-import buttons from "@/assets/buttons.png.asset.json";
-import fabric from "@/assets/fabric.png.asset.json";
-import patch from "@/assets/patch.png.asset.json";
-import modelThumb from "@/assets/model-thumb.png.asset.json";
-import lifestyle from "@/assets/lifestyle-model.png.asset.json";
-import fabricWide from "@/assets/fabric-wide.png.asset.json";
+const front = { url: "/media/jacket-front.png" };
+const back = { url: "/media/jacket-back.png" };
+const cuff = { url: "/media/cuff.png" };
+const sleeve = { url: "/media/sleeve.png" };
+const buttons = { url: "/media/buttons.png" };
+const fabric = { url: "/media/fabric.png" };
+const patch = { url: "/media/patch.png" };
+const modelThumb = { url: "/media/model-thumb.png" };
+const lifestyle = { url: "/media/lifestyle-model.png" };
+const fabricWide = { url: "/media/fabric-wide.png" };
 import relBlackImg from "@/assets/related-black.jpg";
 import relNavyImg from "@/assets/related-navy.jpg";
 import relMaroonImg from "@/assets/related-maroon.jpg";

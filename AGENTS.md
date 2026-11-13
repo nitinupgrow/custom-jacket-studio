@@ -28,3 +28,4 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+- Product images and the 3D model live in public/media and are referenced by /media/... paths, not Lovable asset pointers — the site is also deployed on Vercel, where /__l5e asset URLs don't resolve.
