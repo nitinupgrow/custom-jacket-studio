@@ -11,10 +11,10 @@ function textTexture(text: string, w: number, h: number, arch: boolean) {
   const x = c.getContext("2d")!;
   // Body-colour patch with soft edges to hide the baked lettering underneath.
   const g = x.createRadialGradient(w / 2, h / 2, Math.min(w, h) * 0.35, w / 2, h / 2, Math.max(w, h) * 0.5);
-  g.addColorStop(0, "rgba(10,10,11,1)"); g.addColorStop(0.8, "rgba(10,10,11,1)"); g.addColorStop(1, "rgba(10,10,11,0)");
+  g.addColorStop(0, "rgba(3,3,4,1)"); g.addColorStop(0.85, "rgba(3,3,4,1)"); g.addColorStop(1, "rgba(3,3,4,0)");
   x.fillStyle = g; x.fillRect(0, 0, w, h);
   x.textAlign = "center"; x.textBaseline = "middle";
-  const fs = arch ? h * 0.46 : h * 0.5;
+  const fs = arch ? h * 0.4 : h * 0.42;
   x.font = `400 ${fs}px Graduate, "Rockwell", serif`;
   const draw = (ch: string, cx: number, cy: number, rot: number) => {
     x.save(); x.translate(cx, cy); x.rotate(rot);
@@ -22,7 +22,7 @@ function textTexture(text: string, w: number, h: number, arch: boolean) {
     x.shadowColor = "rgba(0,0,0,0.85)"; x.shadowBlur = fs * 0.08; x.shadowOffsetY = fs * 0.04;
     x.fillStyle = "#f4f4f2"; x.fillText(ch, 0, 0);
     x.shadowColor = "transparent";
-    x.lineWidth = fs * 0.025; x.strokeStyle = "rgba(200,200,200,0.6)"; x.strokeText(ch, 0, 0);
+    x.lineWidth = fs * 0.07; x.lineJoin = "round"; x.strokeStyle = "#ecece8"; x.strokeText(ch, 0, 0);
     x.restore();
   };
   if (!arch) draw(text, w / 2, h / 2, 0);
@@ -77,14 +77,14 @@ function GlbModel({ url }: { url: string }) {
       const orient = new THREE.Euler(0, side === 1 ? 0 : Math.PI, 0);
       const mesh = hit.object as THREE.Mesh;
       const geo = new DecalGeometry(mesh, hit.point, orient, size);
-      const mat = new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.85, depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+      const mat = new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 1, metalness: 0, depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
       const d = new THREE.Mesh(geo, mat);
       decals.push(d); g.add(d);
     };
     document.fonts.load('400 100px Graduate').catch(() => {}).then(() => {
       if (cancelled) return;
-      place(0.37, 0.38, 1, new THREE.Vector3(0.46, 0.4, 0.3), textTexture(FRONT_TEXT, 512, 448, false));
-      place(0, 0.45, -1, new THREE.Vector3(1.05, 0.55, 0.3), textTexture(BACK_TEXT, 1024, 536, true));
+      place(0.37, 0.36, 1, new THREE.Vector3(0.6, 0.5, 0.3), textTexture(FRONT_TEXT, 600, 500, false));
+      place(0, 0.5, -1, new THREE.Vector3(1.2, 0.75, 0.3), textTexture(BACK_TEXT, 1024, 640, true));
     });
     return () => {
       cancelled = true;
