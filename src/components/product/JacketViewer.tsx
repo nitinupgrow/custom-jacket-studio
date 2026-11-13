@@ -3,11 +3,12 @@ import { Box, RotateCw, ZoomIn, Maximize, Hand, Upload } from "lucide-react";
 import pair from "@/assets/jacket-pair.jpg.asset.json";
 import front from "@/assets/jacket-front.png.asset.json";
 import back from "@/assets/jacket-back.png.asset.json";
+import jacketModel from "@/assets/varsity-jacket.glb.asset.json";
 
 const ModelCanvas = lazy(() => import("./ModelCanvas"));
 
 /** Set to a .glb/.gltf URL once the real jacket model is ready. */
-export const JACKET_MODEL_URL: string | null = null;
+export const JACKET_MODEL_URL: string | null = jacketModel.url;
 
 type View = "both" | "front" | "back";
 
