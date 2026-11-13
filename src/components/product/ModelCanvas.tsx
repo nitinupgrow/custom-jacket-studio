@@ -1,59 +1,29 @@
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, useGLTF, useTexture, Center, Environment, Lightformer, Bounds } from "@react-three/drei";
+import { OrbitControls, useGLTF, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
-import frontCut from "@/assets/jacket-front-cutout.png.asset.json";
-import backCut from "@/assets/jacket-back-cutout.png.asset.json";
-
-const H = 2.2; // jacket height in scene units
-const DEPTH = 0.32; // chest bulge depth
-
-/** Plane bent into a rounded shell so the jacket has real volume from any angle. */
-function shell(w: number, h: number) {
-  const g = new THREE.PlaneGeometry(w, h, 48, 48);
-  const p = g.attributes['position'] as THREE.BufferAttribute;
-  for (let i = 0; i < p.count; i++) {
-    const nx = (2 * p.getX(i)) / w;
-    const ny = p.getY(i) / h + 0.5; // 0 bottom .. 1 top
-    const across = Math.sqrt(Math.max(0, 1 - nx * nx));
-    const vert = 0.75 + 0.25 * Math.sin(Math.PI * Math.min(1, ny * 1.1));
-    p.setZ(i, DEPTH * across * vert);
-  }
-  g.computeVertexNormals();
-  return g;
-}
-
-function ProceduralJacket() {
-  const [f, b] = useTexture([frontCut.url, backCut.url]);
-  const parts = useMemo(() => {
-    return [f!, b!].map((t) => {
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.anisotropy = 8;
-      const img = t.image as { width: number; height: number };
-      return { tex: t, geo: shell((H * img.width) / img.height, H) };
-    });
-  }, [f, b]);
-  return (
-    <group>
-      <mesh geometry={parts[0]!.geo}>
-        <meshStandardMaterial map={parts[0]!.tex} alphaTest={0.5} roughness={0.85} side={THREE.FrontSide} />
-      </mesh>
-      <mesh geometry={parts[1]!.geo} rotation-y={Math.PI}>
-        <meshStandardMaterial map={parts[1]!.tex} alphaTest={0.5} roughness={0.85} side={THREE.FrontSide} />
-      </mesh>
-    </group>
-  );
-}
+import defaultGlb from "@/assets/varsity-jacket-v2.glb.asset.json";
 
 function GlbModel({ url }: { url: string }) {
   const { scene } = useGLTF(url);
-  return (
-    <Bounds fit clip observe margin={1.2}>
-      <Center>
-        <primitive object={scene} />
-      </Center>
-    </Bounds>
-  );
+  const ref = useRef<THREE.Group>(null);
+  useEffect(() => {
+    const g = ref.current;
+    if (!g) return;
+    const clone = scene.clone(true);
+    // Normalize: center at origin and scale so the largest side is ~2.2 units.
+    const box = new THREE.Box3().setFromObject(clone);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const s = 2.2 / Math.max(size.x, size.y, size.z, 0.0001);
+    clone.scale.setScalar(s);
+    clone.position.sub(center.multiplyScalar(s));
+    g.add(clone);
+    return () => {
+      g.remove(clone);
+    };
+  }, [scene]);
+  return <group ref={ref} />;
 }
 
 function ViewSync({ view, controls }: { view: "front" | "back"; controls: React.RefObject<any> }) {
@@ -86,7 +56,7 @@ export default function ModelCanvas({ url, view, autoRotate, zoomSignal }: { url
           <Lightformer intensity={2} position={[0, 5, 0]} scale={[10, 10, 1]} />
           <Lightformer intensity={1} position={[-5, 1, -1]} rotation-y={Math.PI / 2} scale={[20, 1, 1]} />
         </Environment>
-        <Suspense fallback={null}>{url ? <GlbModel url={url} /> : <ProceduralJacket />}</Suspense>
+        <Suspense fallback={null}><GlbModel url={url ?? defaultGlb.url} /></Suspense>
         <OrbitControls ref={controls} enableDamping enablePan={false} autoRotate={autoRotate} autoRotateSpeed={2.5} minDistance={1.8} maxDistance={9} />
         <ViewSync view={view} controls={controls} />
       </Canvas>
