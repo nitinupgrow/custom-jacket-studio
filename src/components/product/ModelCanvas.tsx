@@ -28,17 +28,22 @@ function textTexture(text: string, w: number, h: number, arch: boolean) {
   x.font = `400 ${fs}px Graduate, "Rockwell", serif`;
   const draw = (ch: string, cx: number, cy: number, rot: number) => {
     x.save(); x.translate(cx, cy); x.rotate(rot);
-    // raised chenille: soft shadow, then white fill
-    x.shadowColor = "rgba(0,0,0,0.85)"; x.shadowBlur = fs * 0.08; x.shadowOffsetY = fs * 0.04;
-    x.fillStyle = "#f4f4f2"; x.fillText(ch, 0, 0);
+    // white terry/chenille patch: soft drop shadow, fuzzy outer edge, solid core
+    x.lineJoin = "round";
+    x.shadowColor = "rgba(0,0,0,0.9)"; x.shadowBlur = fs * 0.06; x.shadowOffsetY = fs * 0.03;
+    x.fillStyle = "#ffffff"; x.fillText(ch, 0, 0);
     x.shadowColor = "transparent";
-    x.lineWidth = fs * 0.07; x.lineJoin = "round"; x.strokeStyle = "#ecece8"; x.strokeText(ch, 0, 0);
+    x.filter = `blur(${Math.max(1, fs * 0.012)}px)`;
+    x.lineWidth = fs * 0.09; x.strokeStyle = "#f2f2f0"; x.strokeText(ch, 0, 0);
+    x.filter = "none";
+    x.lineWidth = fs * 0.05; x.strokeStyle = "#fafaf8"; x.strokeText(ch, 0, 0);
+    x.fillText(ch, 0, 0);
     x.restore();
   };
   layout(text, w, h, arch, draw);
   // fuzzy fleece grain on the letters
   const img = x.getImageData(0, 0, w, h); const d = img.data;
-  for (let i = 0; i < d.length; i += 4) if (d[i]! > 120) { const n = (Math.random() - 0.5) * 40; d[i] = d[i]! + n; d[i + 1] = d[i + 1]! + n; d[i + 2] = d[i + 2]! + n; }
+  for (let i = 0; i < d.length; i += 4) if (d[i]! > 120) { const n = Math.random() < 0.12 ? -55 : (Math.random() - 0.5) * 22; d[i] = d[i]! + n; d[i + 1] = d[i + 1]! + n; d[i + 2] = d[i + 2]! + n; }
   x.putImageData(img, 0, 0);
   // Height map for the raised, puffy cotton-chenille look.
   const bc = document.createElement("canvas"); bc.width = w; bc.height = h;
@@ -101,7 +106,7 @@ function GlbModel({ url }: { url: string }) {
       const orient = new THREE.Euler(0, side === 1 ? 0 : Math.PI, 0);
       const mesh = hit.object as THREE.Mesh;
       const geo = new DecalGeometry(mesh, hit.point, orient, size);
-      const mat = new THREE.MeshStandardMaterial({ map: tex, bumpMap: tex.userData["bump"], bumpScale: 6, transparent: true, roughness: 1, metalness: 0, depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
+      const mat = new THREE.MeshStandardMaterial({ map: tex, bumpMap: tex.userData["bump"], bumpScale: 6, emissive: new THREE.Color(0x2a2a2a), emissiveMap: tex, transparent: true, roughness: 1, metalness: 0, depthTest: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4 });
       const d = new THREE.Mesh(geo, mat);
       decals.push(d); g.add(d);
     };
