@@ -36,7 +36,7 @@ function textTexture(text: string, w: number, h: number, arch: boolean) {
   }
   // fuzzy fleece grain on the letters
   const img = x.getImageData(0, 0, w, h); const d = img.data;
-  for (let i = 0; i < d.length; i += 4) if (d[i] > 120) { const n = (Math.random() - 0.5) * 40; d[i] += n; d[i + 1] += n; d[i + 2] += n; }
+  for (let i = 0; i < d.length; i += 4) if (d[i]! > 120) { const n = (Math.random() - 0.5) * 40; d[i] = d[i]! + n; d[i + 1] = d[i + 1]! + n; d[i + 2] = d[i + 2]! + n; }
   x.putImageData(img, 0, 0);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
